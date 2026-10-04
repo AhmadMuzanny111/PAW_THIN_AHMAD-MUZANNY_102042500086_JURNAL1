@@ -5,9 +5,9 @@ session_start();
 //  TUGAS JURNAL PRAKTIKUM - PEMROGRAMAN WEB
 //  Sistem Pendaftaran Calon Asisten Praktikum Laboratorium
 // ============================================================
-//  Nama  : ____________________
-//  NIM   : ____________________
-//  Kelas : ____________________
+//  Nama  : Ahmad Muzanny
+//  NIM   : 102042500086
+//  Kelas : S1SI-KJ-25-02
 // ============================================================
 
 // Daftar mata kuliah praktikum
@@ -34,7 +34,8 @@ $daftar_matkul = [
 // Buat variabel error: $namaErr, $waErr, $emailErr, $matkulErr, $motivasiErr
 // Beri nilai awal string kosong ""
 // silakan taruh kode kalian di bawah
-
+$nama = $whatsapp = $email = $matkul = $motivasi = "";
+$namaErr = $waErr = $emailErr = $matkulErr = $motivasiErr = "";
 
 
 // Mode tampilan default adalah form
@@ -58,39 +59,78 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // - Validasi agar nama tidak boleh kosong
     // - Validasi agar nama hanya berupa huruf (Hint : gunakan fungsi preg_match)
     // silakan taruh kode kalian di bawah
-
+    if (empty($_POST["nama_lengkap"])) {
+        $namaErr = "Nama lengkap wajib diisi";
+    } else {
+        $nama = $_POST["nama_lengkap"];
+        if (!preg_match("/^[a-zA-Z-' ]*$/", $nama)) {
+            $namaErr = "Nama hanya boleh berisi huruf dan spasi";
+        }
+    }
 
     // **********************  3  **************************  
     // - Tangkap nilai dari form (Lihat atribut name="no_whatsapp" pada form di Task 7)
     // - Validasi agar nomor whatsapp tidak boleh kosong
     // - Validasi agar nomor whatsapp diawali '0' atau '62' (Hint : gunakan fungsi substr)
     // silakan taruh kode kalian di bawah
-
+    if (empty($_POST["no_whatsapp"])) {
+        $waErr = "Nomor WhatsApp wajib diisi";
+    } else {
+        $whatsapp = $_POST["no_whatsapp"];
+        if (substr($whatsapp, 0, 1) !== '0' && substr($whatsapp, 0, 2) !== '62') {
+            $waErr = "Nomor WhatsApp harus diawali dengan '0' atau '62'";
+        }
+    }
 
     // **********************  4  **************************  
     // - Tangkap nilai dari form (Lihat atribut name="email_institusi" pada form di Task 7)
     // - Memeriksa apakah email kosong
     // - Memeriksa apakah format email valid (Hint : gunakan fungsi filter_var)
     // silakan taruh kode kalian di bawah
-
+    if (empty($_POST["email_institusi"])) {
+        $emailErr = "Email institusi wajib diisi";
+    } else {
+        $email = $_POST["email_institusi"];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $emailErr = "Format email institusi tidak valid";
+        }
+    }
 
     // **********************  5  **************************  
     // - Tangkap nilai dari form (Lihat atribut name="pilihan_matkul" pada form di Task 7)
     // - Validasi agar pilihan mata kuliah tidak boleh kosong
     // silakan taruh kode kalian di bawah
-
+    if (empty($_POST["pilihan_matkul"])) {
+        $matkulErr = "Pilihan mata kuliah praktikum wajib diisi";
+    } else {
+        $matkul = $_POST["pilihan_matkul"];
+    }
 
     // **********************  6  **************************  
     // - Tangkap nilai dari form (Lihat atribut name="motivasi" pada form di Task 7)
     // - Validasi agar motivasi tidak boleh kosong
     // silakan taruh kode kalian di bawah
-
+    if (empty($_POST["motivasi"])) {
+        $motivasiErr = "Motivasi mendaftar wajib diisi";
+    } else {
+        $motivasi = $_POST["motivasi"];
+    }
 
     // **********************  8  **************************  
     // Cek jika seluruh error kosong (pendaftaran berhasil):
     // - Simpan data pendaftar ke dalam $_SESSION['data_pendaftar']
     // - Ubah $mode menjadi "id_card" agar form berganti ke tampilan Kartu Registrasi
     // silakan taruh kode kalian di bawah
+    if (empty($namaErr) && empty($waErr) && empty($emailErr) && empty($matkulErr) && empty($motivasiErr)) {
+        $_SESSION['data_pendaftar'] = [
+            'nama' => $nama,
+            'whatsapp' => $whatsapp,
+            'email' => $email,
+            'matkul' => $matkul,
+            'motivasi' => $motivasi
+        ];
+        $mode = "id_card";
+    }
 
 }
 ?>
@@ -132,14 +172,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="id-card-row">
                 <span class="id-card-label">No. WhatsApp</span>
-                <span class="id-card-value"></span>
+                <span class="id-card-value"><?php echo htmlspecialchars($whatsapp); ?></span>
             </div>
 
             <hr class="id-card-divider">
 
             <div class="id-card-row">
                 <span class="id-card-label">Email Institusi</span>
-                <span class="id-card-value"></span>
+                <span class="id-card-value"><?php echo htmlspecialchars($email); ?></span>
             </div>
 
             <div class="id-card-row">
@@ -180,26 +220,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <?php } ?>
 
-        <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
             <!-- **********************  7  ************************** -->
             <!-- Tambahkan value di tiap input untuk menampilkan kembali data setelah submit (retaining input) -->
             <!-- Hint : value pada input form harus berisi variabel yang menyimpan data input -->
 
             <div class="form-group">
                 <label>Nama Lengkap <span class="required">*</span></label>
-                <input type="text" name="nama_lengkap" placeholder="Contoh: Budi Santoso" value="<?php echo $nama; ?>">
+                <input type="text" name="nama_lengkap" placeholder="Contoh: Budi Santoso" value="<?php echo htmlspecialchars($nama); ?>">
                 <span class="error"><?php echo $namaErr ? "* $namaErr" : ""; ?></span>
             </div>
 
             <div class="form-group">
                 <label>Nomor WhatsApp <span class="required">*</span></label>
-                <input type="number" name="no_whatsapp" placeholder="Contoh: 081234567890">
+                <input type="number" name="no_whatsapp" placeholder="Contoh: 081234567890" value="<?php echo htmlspecialchars($whatsapp); ?>">
                 <span class="error"><?php echo $waErr ? "* $waErr" : ""; ?></span>
             </div>
 
             <div class="form-group">
                 <label>Email Institusi <span class="required">*</span></label>
-                <input type="email" name="email_institusi" placeholder="Contoh: budi@university.ac.id">
+                <input type="email" name="email_institusi" placeholder="Contoh: budi@university.ac.id" value="<?php echo htmlspecialchars($email); ?>">
                 <span class="error"><?php echo $emailErr ? "* $emailErr" : ""; ?></span>
             </div>
 
@@ -208,8 +248,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <select name="pilihan_matkul">
                     <option value="">-- Pilih Mata Kuliah --</option>
                     <?php foreach ($daftar_matkul as $mk) { ?>
-                        <option value="<?php echo $mk; ?>" <?php echo ($matkul == $mk) ? 'selected' : ''; ?>>
-                            <?php echo $mk; ?>
+                        <option value="<?php echo htmlspecialchars($mk); ?>" <?php echo ($matkul == $mk) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($mk); ?>
                         </option>
                     <?php } ?>
                 </select>
@@ -218,7 +258,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="form-group">
                 <label>Motivasi Mendaftar <span class="required">*</span></label>
-                <textarea name="motivasi" placeholder="Tuliskan alasan kamu ingin menjadi asisten praktikum..."><?php echo $motivasi; ?></textarea>
+                <textarea name="motivasi" placeholder="Tuliskan alasan kamu ingin menjadi asisten praktikum..."><?php echo htmlspecialchars($motivasi); ?></textarea>
                 <span class="error"><?php echo $motivasiErr ? "* $motivasiErr" : ""; ?></span>
             </div>
 
